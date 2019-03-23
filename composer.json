@@ -1,0 +1,13 @@
+{
+    "name": "javi/facebook_ad_creation",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Javier Pimentel",
+            "email": "javier@softwareandwebstuff.com"
+        }
+    ],
+    "require": {
+        "facebook/php-business-sdk": "^3.2"
+    }
+}
