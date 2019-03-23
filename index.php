@@ -1,5 +1,7 @@
 <?php
 
+use FacebookAds\Api;
+use FacebookAds\Http\Exception\RequestException;
 use FacebookAds\Object\Ad;
 use FacebookAds\Object\AdCreative;
 use FacebookAds\Object\AdCreativeLinkData;
@@ -20,31 +22,37 @@ class FacebookAdCreation
     public static function main()
     {
         $settings = new FacebookSettings();
-        $clickUrl = 'https://softwareandwebstuff.com';
-        $imageFileLocation = '';
+        $clickUrl = '';
+        $imageFileLocation = __DIR__ . DIRECTORY_SEPARATOR . 'adImage.png';
         $adSetId = '';
+
+        Api::init($settings->getAppId(), $settings->getAppSecret(), $settings->getUserToken());
 
         /**
          * Step 1 Uploading the Image
          */
         $image = new AdImage(null, $settings->getDefaultAdAccount());
         $image->{AdImageFields::FILENAME} = $imageFileLocation;
-        $image->create();
+        try {
+            $image->create();
+        } catch (RequestException $e) {
+            var_dump($e->getResponse()->getBody());
+            die();
+        }
         $imageHash = $image->{AdImageFields::HASH};
-
 
         /**
          * Step 2 Creating the Ad Creative
          */
         $link_data = new AdCreativeLinkData();
-        $link_data->setData(array(
+        $link_data->setData([
             AdCreativeLinkDataFields::NAME => 'test ad creative',
             AdCreativeLinkDataFields::LINK => $clickUrl,
             AdCreativeLinkDataFields::IMAGE_HASH => $imageHash,
-            AdCreativeLinkDataFields::CALL_TO_ACTION => array(
+            AdCreativeLinkDataFields::CALL_TO_ACTION => [
                 'type' => AdCreativeCallToActionTypeValues::NO_BUTTON,
-            ),
-        ));
+            ],
+        ]);
 
         $story = new AdCreativeObjectStorySpec();
         $story->setData([
@@ -57,10 +65,13 @@ class FacebookAdCreation
             AdCreativeFields::OBJECT_STORY_SPEC => $story,
         ]);
 
-        $creative->create();
+        try {
+            $creative->create();
+        } catch (RequestException $e) {
+            var_dump($e->getResponse()->getBody());
+            die();
+        }
         $creativeId = $creative->{AdCreativeFields::ID};
-
-
         /**
          * Step 3 Putting it All Together
          */
@@ -74,7 +85,12 @@ class FacebookAdCreation
             AdFields::STATUS => Ad::STATUS_ACTIVE,
         ));
 
-        $ad->create();
+        try {
+            $ad->create();
+        } catch (RequestException $e) {
+            var_dump($e->getResponse()->getBody());
+            die();
+        }
     }
 
 
